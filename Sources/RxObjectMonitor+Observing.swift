@@ -31,8 +31,8 @@ import RxSwift
 // MARK: - RxObjectMonitorType
 
 public protocol RxObjectMonitorType {
-    
-    associatedtype ObjectType: DynamicObject
+	
+	associatedtype ObjectType: DynamicObject
 }
 
 extension ObjectMonitor: RxObjectMonitorType {}
@@ -41,35 +41,33 @@ extension ObjectMonitor: RxObjectMonitorType {}
 // MARK: - ObjectMonitor
 
 extension ObjectMonitor: ObservableConvertibleType {
-    
-    // MARK: ObservableConvertibleType
-    
-    public typealias E = RxObjectChange<D>
-    
-    public func asObservable() -> Observable<RxObjectChange<D>> {
-        
-        return Observable<RxObjectChange<D>>.create({ (observable) in
-            
-            let observer = RxAnonymousObjectObserver(observable)
-            
-            self.addObserver(observer)
-            return Disposables.create {
-                
-                self.removeObserver(observer)
-            }
-        }).startWith(E(self, .initial))
-    }
+	
+	// MARK: ObservableConvertibleType
+	
+	public typealias E = RxObjectChange<D>
+	
+	public func asObservable() -> Observable<E>
+	{
+		return Observable<E>.create({ observable in
+			let observer = RxAnonymousObjectObserver(observable)
+			self.addObserver(observer)
+			
+			return Disposables.create {
+				self.removeObserver(observer)
+			}
+		}).startWith(E(self, .initial(object: self.object!)))
+	}
 }
 
 
 // MARK: - RxObjectChangeType
 
 public protocol RxObjectChangeType {
-    
-    associatedtype ObjectType: DynamicObject
-    
-    var monitor: ObjectMonitor<ObjectType> { get }
-    var changeType: RxObjectChange<ObjectType>.ChangeType { get }
+	
+	associatedtype ObjectType: DynamicObject
+	
+	var monitor: ObjectMonitor<ObjectType> { get }
+	var changeType: RxObjectChange<ObjectType>.ChangeType { get }
 }
 
 
@@ -81,133 +79,133 @@ public protocol RxAnyObjectChange {}
 // MARK: - RxObjectChange
 
 public struct RxObjectChange<D: DynamicObject>: RxObjectChangeType {
-    
-    // MARK: - ChangeType
-    
-    public enum ChangeType {
-        case initial
-        case objectWillUpdate(object: D)
-        case objectDidUpdate(object: D, changedPersistentKeys: Set<KeyPathString>)
-        case objectDeleted
-    }
-    
-    
-    // MARK: -
-    
-    public let monitor: ObjectMonitor<D>
-    public let changeType: ChangeType
-    
-    public var tuple: (monitor: ObjectMonitor<D>, changeType: ChangeType) {
-        
-        return (self.monitor, self.changeType)
-    }
-    
-    
-    // MARK: RxObjectChangeType
-    
-    public typealias ObjectType = D
-    
-    
-    // MARK: FilePrivate
-    
-    fileprivate init(_ monitor: ObjectMonitor<D>, _ changeType: ChangeType) {
-        
-        self.monitor = monitor
-        self.changeType = changeType
-    }
+	
+	// MARK: - ChangeType
+	
+	public enum ChangeType {
+		case initial(object: D?)
+		case objectWillUpdate(object: D)
+		case objectDidUpdate(object: D, changedPersistentKeys: Set<KeyPathString>)
+		case objectDeleted
+	}
+	
+	
+	// MARK: -
+	
+	public let monitor: ObjectMonitor<D>
+	public let changeType: ChangeType
+	
+	public var tuple: (monitor: ObjectMonitor<D>, changeType: ChangeType) {
+		
+		return (self.monitor, self.changeType)
+	}
+	
+	
+	// MARK: RxObjectChangeType
+	
+	public typealias ObjectType = D
+	
+	
+	// MARK: FilePrivate
+	
+	fileprivate init(_ monitor: ObjectMonitor<D>, _ changeType: ChangeType) {
+		
+		self.monitor = monitor
+		self.changeType = changeType
+	}
 }
 
 
 // MARK: - SharedSequence where SharingStrategy == SignalSharingStrategy, Element: RxObjectChangeType
 
 extension SharedSequence where SharingStrategy == SignalSharingStrategy, Element: RxObjectChangeType {
-    
-    public typealias ObjectMonitorType = ObjectMonitor<Element.ObjectType>
-    public typealias ObjectChangeType = RxObjectChange<Element.ObjectType>.ChangeType
-    
-    public func filterObjectWillUpdate() -> Signal<Element.ObjectType> {
-        
-        return self.flatMap { (objectChange) -> Signal<Element.ObjectType> in
-            
-            if case .objectWillUpdate(let object) = objectChange.changeType {
-                
-                return .just(object)
-            }
-            return .never()
-        }
-    }
-    
-    public func filterObjectDidUpdate() -> Signal<(object: Element.ObjectType, changedPersistentKeys: Set<KeyPathString>)> {
-        
-        return self.flatMap { (objectChange) -> Signal<(object: Element.ObjectType, changedPersistentKeys: Set<KeyPathString>)> in
-            
-            if case .objectDidUpdate(let object, let changedPersistentKeys) = objectChange.changeType {
-                
-                return .just((object, changedPersistentKeys))
-            }
-            return .never()
-        }
-    }
-    
-    public func filterObjectDeleted() -> Signal<Void> {
-        
-        return self.flatMap { (objectChange) -> Signal<Void> in
-            
-            if case .objectDeleted = objectChange.changeType {
-                
-                return .just(())
-            }
-            return .never()
-        }
-    }
+	
+	public typealias ObjectMonitorType = ObjectMonitor<Element.ObjectType>
+	public typealias ObjectChangeType = RxObjectChange<Element.ObjectType>.ChangeType
+	
+	public func filterObjectWillUpdate() -> Signal<Element.ObjectType> {
+		
+		return self.flatMap { (objectChange) -> Signal<Element.ObjectType> in
+			
+			if case .objectWillUpdate(let object) = objectChange.changeType {
+				
+				return .just(object)
+			}
+			return .never()
+		}
+	}
+	
+	public func filterObjectDidUpdate() -> Signal<(object: Element.ObjectType, changedPersistentKeys: Set<KeyPathString>)> {
+		
+		return self.flatMap { (objectChange) -> Signal<(object: Element.ObjectType, changedPersistentKeys: Set<KeyPathString>)> in
+			
+			if case .objectDidUpdate(let object, let changedPersistentKeys) = objectChange.changeType {
+				
+				return .just((object, changedPersistentKeys))
+			}
+			return .never()
+		}
+	}
+	
+	public func filterObjectDeleted() -> Signal<Void> {
+		
+		return self.flatMap { (objectChange) -> Signal<Void> in
+			
+			if case .objectDeleted = objectChange.changeType {
+				
+				return .just(())
+			}
+			return .never()
+		}
+	}
 }
 
 
 // MARK: - RxAnonymousObjectObserver
 
-internal final class RxAnonymousObjectObserver<D: DynamicObject>: ObjectObserver {
-    
-    internal typealias ObjectChangeType = RxObjectChange<D>
-    
-    internal init(_ observable: AnyObserver<ObjectChangeType>) {
-        
-        self.observable = observable
-    }
-    
-    
-    // MARK: ListObserver
-    
-    internal typealias ObjectEntityType = D
-    
-    internal func objectMonitor(_ monitor: ObjectMonitor<ObjectEntityType>, willUpdateObject object: ObjectEntityType) {
-        
-        self.observable.onNext(
-            ObjectChangeType(monitor, ObjectChangeType.ChangeType.objectWillUpdate(object: object))
-        )
-    }
-    
-    internal func objectMonitor(_ monitor: ObjectMonitor<ObjectEntityType>, didUpdateObject object: ObjectEntityType, changedPersistentKeys: Set<KeyPathString>) {
-        
-        self.observable.onNext(
-            ObjectChangeType(
-                monitor,
-                ObjectChangeType.ChangeType.objectDidUpdate(
-                    object: object,
-                    changedPersistentKeys: changedPersistentKeys
-                )
-            )
-        )
-    }
-    
-    internal func objectMonitor(_ monitor: ObjectMonitor<ObjectEntityType>, didDeleteObject object: ObjectEntityType) {
-        
-        self.observable.onNext(
-            ObjectChangeType(monitor, ObjectChangeType.ChangeType.objectDeleted)
-        )
-    }
-    
-    
-    // MARK: Private
-    
-    fileprivate let observable: AnyObserver<ObjectChangeType>
+internal final class RxAnonymousObjectObserver<D: DynamicObject>: ObjectObserver
+{
+	internal typealias ObjectChangeType = RxObjectChange<D>
+	
+	internal init(_ observable: AnyObserver<ObjectChangeType>) {
+		
+		self.observable = observable
+	}
+	
+	
+	// MARK: ListObserver
+	
+	internal typealias ObjectEntityType = D
+	
+	internal func objectMonitor(_ monitor: ObjectMonitor<ObjectEntityType>, willUpdateObject object: ObjectEntityType) {
+		
+		self.observable.onNext(
+			ObjectChangeType(monitor, ObjectChangeType.ChangeType.objectWillUpdate(object: object))
+		)
+	}
+	
+	internal func objectMonitor(_ monitor: ObjectMonitor<ObjectEntityType>, didUpdateObject object: ObjectEntityType, changedPersistentKeys: Set<KeyPathString>) {
+		
+		self.observable.onNext(
+			ObjectChangeType(
+				monitor,
+				ObjectChangeType.ChangeType.objectDidUpdate(
+					object: object,
+					changedPersistentKeys: changedPersistentKeys
+				)
+			)
+		)
+	}
+	
+	internal func objectMonitor(_ monitor: ObjectMonitor<ObjectEntityType>, didDeleteObject object: ObjectEntityType) {
+		
+		self.observable.onNext(
+			ObjectChangeType(monitor, ObjectChangeType.ChangeType.objectDeleted)
+		)
+	}
+	
+	
+	// MARK: Private
+	
+	fileprivate let observable: AnyObserver<ObjectChangeType>
 }
