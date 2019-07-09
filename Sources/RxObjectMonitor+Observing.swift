@@ -48,18 +48,16 @@ extension ObjectMonitor: ObservableConvertibleType {
     
     public func asObservable() -> Observable<RxObjectChange<D>> {
         
-        return Observable<RxObjectChange<D>>
-            .create(
-                { (observable) in
-                    
-                    let observer = RxAnonymousObjectObserver(observable)
-                    self.addObserver(observer)
-                    return Disposables.create {
-                        
-                        self.removeObserver(observer)
-                    }
-                }
-        )
+        return Observable<RxObjectChange<D>>.create({ (observable) in
+            
+            let observer = RxAnonymousObjectObserver(observable)
+            
+            self.addObserver(observer)
+            return Disposables.create {
+                
+                self.removeObserver(observer)
+            }
+        }).startWith(E(self, .initial))
     }
 }
 
@@ -87,7 +85,7 @@ public struct RxObjectChange<D: DynamicObject>: RxObjectChangeType {
     // MARK: - ChangeType
     
     public enum ChangeType {
-        
+        case initial
         case objectWillUpdate(object: D)
         case objectDidUpdate(object: D, changedPersistentKeys: Set<KeyPathString>)
         case objectDeleted

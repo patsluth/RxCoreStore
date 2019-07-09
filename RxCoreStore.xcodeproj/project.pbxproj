@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2E9CFF5622D4C92A005E3559 /* CoreStore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5D339981E9226DE00C880DE /* CoreStore.framework */; };
 		B5A992111EA59F2B0091A2E3 /* RxCoreStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A992101EA59F2B0091A2E3 /* RxCoreStore.swift */; };
 		B5A992131EA5A0D90091A2E3 /* RxDataStack+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A992121EA5A0D90091A2E3 /* RxDataStack+Setup.swift */; };
 		B5A992191EA74DD60091A2E3 /* RxDataStack+Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A992181EA74DD50091A2E3 /* RxDataStack+Transaction.swift */; };
@@ -15,7 +16,6 @@
 		B5D339451E920DAA00C880DE /* RxCoreStore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5D3393B1E920DA900C880DE /* RxCoreStore.framework */; };
 		B5D3394A1E920DAA00C880DE /* RxCoreStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D339491E920DAA00C880DE /* RxCoreStoreTests.swift */; };
 		B5D3394C1E920DAA00C880DE /* RxCoreStore.h in Headers */ = {isa = PBXBuildFile; fileRef = B5D3393E1E920DA900C880DE /* RxCoreStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		B5D339991E9226DE00C880DE /* CoreStore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5D339981E9226DE00C880DE /* CoreStore.framework */; };
 		B5D3399B1E9226E700C880DE /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5D3399A1E9226E700C880DE /* RxSwift.framework */; };
 		B5D3399D1E9226F400C880DE /* RxCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5D3399C1E9226F400C880DE /* RxCocoa.framework */; };
 		B5D3399F1E9226FB00C880DE /* RxBlocking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5D3399E1E9226FB00C880DE /* RxBlocking.framework */; };
@@ -65,9 +65,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B5D3399F1E9226FB00C880DE /* RxBlocking.framework in Frameworks */,
+				2E9CFF5622D4C92A005E3559 /* CoreStore.framework in Frameworks */,
 				B5D3399D1E9226F400C880DE /* RxCocoa.framework in Frameworks */,
 				B5D3399B1E9226E700C880DE /* RxSwift.framework in Frameworks */,
-				B5D339991E9226DE00C880DE /* CoreStore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,6 +227,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = B5D339311E920DA900C880DE;
@@ -403,6 +404,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 3;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/DerivedData/Build/Products/Debug-iphonesimulator",
+				);
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -423,6 +428,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 3;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/DerivedData/Build/Products/Debug-iphonesimulator",
+				);
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
